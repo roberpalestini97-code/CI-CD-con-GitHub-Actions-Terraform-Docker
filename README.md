@@ -2,10 +2,6 @@
 
 Aplicación base para el **Proyecto Integrador Final (PIN)**: CI/CD con GitHub Actions, Terraform y Docker.
 
-## Responsable
-
-**Persona 3** — Docker + Aplicación
-
 ## Endpoints
 
 | Ruta | Descripción |
@@ -52,9 +48,3 @@ curl http://localhost:3000/health
 ├── docker-compose.yml
 └── .env.example      # Variables de entorno de referencia
 ```
-
-## Próximos pasos del equipo
-
-- **Persona 1**: pipeline GitHub Actions (build, test, lint, security, deploy)
-- **Persona 2**: infraestructura con Terraform
-- **Persona 4**: Prometheus, Grafana y documentación final
