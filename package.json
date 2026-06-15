@@ -1,0 +1,25 @@
+{
+  "name": "pin-proyecto1-app",
+  "version": "1.0.0",
+  "description": "Aplicación base para PIN Proyecto 1 - CI/CD + Terraform + Docker",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/**/*.test.js",
+    "lint": "eslint src test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "devops",
+    "docker",
+    "pin"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "eslint": "^9.28.0"
+  }
+}
