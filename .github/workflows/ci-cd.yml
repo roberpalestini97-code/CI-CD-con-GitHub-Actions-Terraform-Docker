@@ -109,6 +109,7 @@ jobs:
             type=semver,pattern={{version}}
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Build & Push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -116,5 +117,19 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # SBOM + provenance como attestations adjuntas a la imagen en GHCR.
+          sbom: true
+          provenance: mode=max
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # SBOM como archivo descargable (CycloneDX) subido como artifact del workflow.
+      # Escanea la imagen ya pusheada (la primera tag generada por metadata-action,
+      # ya en minúsculas). El login a GHCR previo le da acceso para hacer el pull.
+      - name: Generar SBOM (CycloneDX) de la imagen
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+          artifact-name: sbom.cyclonedx.json

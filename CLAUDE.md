@@ -45,7 +45,7 @@ El `Dockerfile` es multistage e incluye una **etapa `test` que corre `npm run li
 1. **test** — `npm ci` + `npm run lint` + `npm test`.
 2. **sonarqube** — análisis con `sonarqube-scan-action` (config en `sonar-project.properties`). Secrets: `SONAR_TOKEN`, `SONAR_HOST_URL`.
 3. **security** — `snyk/actions/node` con `--severity-threshold=high`. Secret: `SNYK_TOKEN`.
-4. **docker** — solo en push (no PRs). Build del target `production` y push a **GHCR** (`ghcr.io/<owner>/<repo>`) con `docker/build-push-action` + caché de Buildx por GHA. Usa `GITHUB_TOKEN` (no requiere secret extra). Para Docker Hub, cambiar el login y el `images:` del paso de metadata.
+4. **docker** — solo en push (no PRs). Build del target `production` y push a **GHCR** (`ghcr.io/<owner>/<repo>`) con `docker/build-push-action` + caché de Buildx por GHA. Usa `GITHUB_TOKEN` (no requiere secret extra). Para Docker Hub, cambiar el login y el `images:` del paso de metadata. Genera **SBOM** de dos formas: attestation adjunta a la imagen (`sbom: true` + `provenance: mode=max`) y un archivo `sbom.cyclonedx.json` (CycloneDX, vía `anchore/sbom-action`) subido como artifact del workflow.
 
 Nota: `docker/metadata-action` pasa el nombre de la imagen a minúsculas, necesario porque el repo tiene mayúsculas y GHCR las rechaza. El build del target `production` **no** ejecuta la etapa `test` del Dockerfile (no está en su grafo de dependencias); por eso los tests corren en el job `test` aparte.
 
