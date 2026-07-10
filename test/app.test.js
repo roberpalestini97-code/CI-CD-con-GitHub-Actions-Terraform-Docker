@@ -54,6 +54,24 @@ describe('API', () => {
     assert.equal(response.body.appName, 'PIN Test App');
   });
 
+  it('expone métricas Prometheus', async () => {
+    const response = await new Promise((resolve, reject) => {
+      const { port } = server.address();
+      http.get(`http://127.0.0.1:${port}/metrics`, (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          resolve({ statusCode: res.statusCode, body });
+        });
+      }).on('error', reject);
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.match(response.body, /process_cpu_seconds_total/);
+  });
+
   it('devuelve 404 para rutas desconocidas', async () => {
     const response = await request(server, '/no-existe');
     assert.equal(response.statusCode, 404);
