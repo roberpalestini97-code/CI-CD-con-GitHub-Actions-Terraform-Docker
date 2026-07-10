@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 App base del **Proyecto Integrador Final (PIN)** para practicar CI/CD con GitHub Actions, Terraform y Docker. La aplicación en sí es deliberadamente mínima — su rol es servir de objeto de despliegue para la infraestructura y el pipeline.
 
-**Estado actual:** existen la app Node.js, el empaquetado Docker y el pipeline de **GitHub Actions** (`.github/workflows/ci-cd.yml`). **Todavía no hay** archivos Terraform — son trabajo pendiente. El `.dockerignore` ya contempla `*.tfstate`, anticipando esa pieza.
+**Estado actual:** existen la app Node.js, Docker, Terraform (`main.tf`, `variables.tf`, `outputs.tf`), observabilidad (Prometheus + Grafana + `/metrics`) y el pipeline de **GitHub Actions** (`.github/workflows/ci-cd.yml`) con jobs test, sonarqube, security (Snyk), docker (SBOM) y deploy (Terraform).
 
 ## Comandos
 
@@ -46,6 +46,7 @@ El `Dockerfile` es multistage e incluye una **etapa `test` que corre `npm run li
 2. **sonarqube** — análisis con `sonarqube-scan-action` (config en `sonar-project.properties`). Secrets: `SONAR_TOKEN`, `SONAR_HOST_URL`.
 3. **security** — `snyk/actions/node` con `--severity-threshold=high`. Secret: `SNYK_TOKEN`.
 4. **docker** — solo en push (no PRs). Build del target `production` y push a **GHCR** (`ghcr.io/<owner>/<repo>`) con `docker/build-push-action` + caché de Buildx por GHA. Usa `GITHUB_TOKEN` (no requiere secret extra). Para Docker Hub, cambiar el login y el `images:` del paso de metadata. Genera **SBOM** de dos formas: attestation adjunta a la imagen (`sbom: true` + `provenance: mode=max`) y un archivo `sbom.cyclonedx.json` (CycloneDX, vía `anchore/sbom-action`) subido como artifact del workflow.
+5. **deploy** — solo en push. `terraform apply` sobre Docker del runner Linux (`TF_VAR_docker_host=unix:///var/run/docker.sock`) y smoke tests contra `/health` y `/metrics`.
 
 Nota: `docker/metadata-action` pasa el nombre de la imagen a minúsculas, necesario porque el repo tiene mayúsculas y GHCR las rechaza. El build del target `production` **no** ejecuta la etapa `test` del Dockerfile (no está en su grafo de dependencias); por eso los tests corren en el job `test` aparte.
 
